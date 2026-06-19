@@ -1,0 +1,370 @@
+<?php
+// controleurs/UtilisateurControleur.php
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+require_once __DIR__ . '/../modeles/Utilisateur.php';
+
+class UtilisateurControleur {
+    private $utilisateurModele;
+    private $pdo;
+
+    public function __construct() {
+        $this->utilisateurModele = new Utilisateur();
+        $this->initialiserConnexion();
+    }
+
+    private function initialiserConnexion() {
+        try {
+            $this->pdo = new PDO("mysql:host=localhost;dbname=gestion_ecole;charset=utf8mb4", 'root', '', [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ]);
+        } catch (Exception $e) {
+            die("Erreur de connexion à la base de données : " . $e->getMessage());
+        }
+    }
+
+    private function demarrerSession() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
+    private function estAdmin() {
+        $this->demarrerSession();
+        return in_array(strtolower($_SESSION['role'] ?? ''), ['directeur', 'admin', 'administrateur'], true);
+    }
+
+    private function recupererClassesEnseignant($id_utilisateur) {
+        if (empty($id_utilisateur)) return [];
+        $stmt = $this->pdo->prepare("SELECT DISTINCT c.id, c.nom_classe FROM classe c JOIN affectation_enseignant a ON a.id_classe = c.id WHERE a.id_utilisateur = :id_user ORDER BY c.nom_classe ASC");
+        $stmt->execute(['id_user' => $id_utilisateur]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function verifierClasseAutorisee($id_classe) {
+        if ($this->estAdmin() || empty($id_classe)) return true;
+        $this->demarrerSession();
+        $classes = $_SESSION['teacher_classes'] ?? [];
+        return in_array($id_classe, $classes, true);
+    }
+
+    private function verifierAuthentification() {
+        $this->demarrerSession();
+        if (!isset($_SESSION['role'])) {
+            header("Location: index.php?action=connexion");
+            exit();
+        }
+    }
+
+    public function afficherConnexion($erreur = "") {
+        require_once __DIR__ . '/../vues/authentification/connexion.php';
+    }
+
+    public function connecter() {
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $login = $_POST['login'] ?? '';
+            $mot_de_passe = $_POST['password'] ?? '';
+
+            if (!empty($login) && !empty($mot_de_passe)) {
+                $user = $this->utilisateurModele->verifierConnexion($login, $mot_de_passe);
+                if ($user) {
+                    $this->demarrerSession();
+                    $userId = $user['id'] ?? $user['id_utilisateur'] ?? null;
+                    $_SESSION['user_id'] = $userId;
+                    $_SESSION['login'] = $user['login'];
+                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['derniere_activite'] = time();
+
+                    if (strtolower($user['role']) === 'enseignant') {
+                        $stmtEns = $this->pdo->prepare("SELECT statut, statut_activite FROM enseignant WHERE id_utilisateur = :id_user LIMIT 1");
+                        $stmtEns->execute(['id_user' => $userId]);
+                        $enseignant = $stmtEns->fetch(PDO::FETCH_ASSOC);
+                        if (!$enseignant || strtolower($enseignant['statut']) !== 'titulaire' || strtolower($enseignant['statut_activite']) !== 'actif') {
+                            session_unset();
+                            session_destroy();
+                            $this->afficherConnexion("Accès réservé aux enseignants titulaires et actifs.");
+                            exit();
+                        }
+                        $classes = $this->recupererClassesEnseignant($userId);
+                        $_SESSION['teacher_classes'] = array_column($classes, 'id');
+                    }
+                    header("Location: index.php?action=dashboard");
+                    exit();
+                } else {
+                    $this->afficherConnexion("Identifiant ou mot de passe incorrect !");
+                }
+            } else {
+                $this->afficherConnexion("Veuillez remplir tous les champs !");
+            }
+        }
+    }
+
+    public function ouvrirDashboard() {
+        $this->verifierAuthentification();
+        $temps_inactivite_max = 300;
+        if (isset($_SESSION['derniere_activite'])) {
+            $temps_ecoule = time() - $_SESSION['derniere_activite'];
+            if ($temps_ecoule > $temps_inactivite_max) {
+                session_unset();
+                session_destroy();
+                header("Location: index.php?action=connexion&erreur=session_expiree");
+                exit();
+            }
+        }
+        $_SESSION['derniere_activite'] = time();
+        $role_brut = $_SESSION['role'];
+        $role_actuel = (in_array(strtolower($role_brut), ['directeur', 'admin', 'administrateur'])) ? 'admin' : 'enseignant';
+        $nom_affichage = $_SESSION['login'] ?? $role_brut;
+        require_once __DIR__ . '/../vues/dashboard.php';
+    }
+
+    public function obtenirStatistiques() {
+        $this->demarrerSession();
+        try {
+            $eleves = $this->pdo->query("SELECT COUNT(*) FROM eleve")->fetchColumn();
+            $classes = $this->pdo->query("SELECT COUNT(*) FROM classe")->fetchColumn();
+            $enseignants = $this->pdo->query("SELECT COUNT(*) FROM enseignant WHERE statut_activite = 'actif'")->fetchColumn();
+            $recettes = $this->pdo->query("SELECT IFNULL(SUM(montant), 0) FROM paiement")->fetchColumn();
+            $repartition = $this->pdo->query("SELECT c.nom_classe, COUNT(e.matricule) AS effectif FROM classe c LEFT JOIN eleve e ON c.id = e.id_classe GROUP BY c.id, c.nom_classe ORDER BY c.id ASC")->fetchAll();
+            $reponse = ['status' => 'success', 'stats' => ['total_eleves' => (int)$eleves, 'total_classes' => (int)$classes, 'total_enseignants' => (int)$enseignants, 'total_recettes' => (float)$recettes], 'graphique' => $repartition];
+            if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode($reponse);
+            exit;
+        } catch (Exception $e) {
+            if (ob_get_length()) ob_clean();
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['status' => 'error', 'message' => "Erreur interne : " . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    // ==================== MÉTHODE PRINCIPALE POUR LA SAISIE DES NOTES ====================
+    public function afficherSaisieNotes() {
+        $classe_selectionnee = $_GET['id_classe'] ?? null;
+        $id_trimestre_selectionne = $_GET['id_trimestre'] ?? null;
+        $eleve_index = isset($_GET['eleve_idx']) ? (int)$_GET['eleve_idx'] : 0;
+        
+        $classes = $this->pdo->query("SELECT id, nom_classe FROM classe ORDER BY nom_classe ASC")->fetchAll();
+        
+        $nom_classe = '';
+        if ($classe_selectionnee) {
+            $stmt = $this->pdo->prepare("SELECT nom_classe FROM classe WHERE id = :id");
+            $stmt->execute(['id' => $classe_selectionnee]);
+            $nom_classe = $stmt->fetchColumn();
+        }
+        
+        $prof_principal = 'Non assigné';
+        if ($classe_selectionnee) {
+            $stmt = $this->pdo->prepare("SELECT e.nom, e.prenom FROM enseignant e JOIN affectation_enseignant a ON e.id_utilisateur = a.id_utilisateur WHERE a.id_classe = :id_classe AND e.statut = 'Titulaire' LIMIT 1");
+            $stmt->execute(['id_classe' => $classe_selectionnee]);
+            $ens = $stmt->fetch();
+            if ($ens) $prof_principal = $ens['nom'] . ' ' . $ens['prenom'];
+        }
+        
+        $mensuels = $this->getMensuelsByTrimestre($id_trimestre_selectionne);
+        
+        $domaines_officiels = ["I. LANGUES ET COMMUNICATION", "II. SCIENCE ET TECHNOLOGIE", "III. SCIENCES HUMAINES", "IV. L'AVENTURE HUMAINE"];
+        $matieres_par_domaine = [];
+        foreach ($domaines_officiels as $dom) $matieres_par_domaine[$dom] = [];
+        
+        $liste_eleves = [];
+        $eleve_courant = null;
+        $total_eleves = 0;
+        $notes_par_matiere = [];
+        $noteObsExistantes = [];
+        $prof_matiere = [];
+        $message_succes = "";
+        $message_erreur = "";
+        
+        // Traitement POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enregistrer_bulletin_eleve'])) {
+            $id_classe = $_POST['id_classe'] ?? '';
+            $matricule_eleve = $_POST['matricule_eleve'] ?? '';
+            $id_trimestre = $_POST['id_trimestre'] ?? '';
+            $current_idx = (int)($_POST['eleve_idx'] ?? 0);
+            $notes = $_POST['notes'] ?? [];
+            $observations = $_POST['observations'] ?? [];
+            $suivant = isset($_POST['suivant']);
+            
+            if (!empty($matricule_eleve) && !empty($id_trimestre)) {
+                try {
+                    $this->pdo->beginTransaction();
+                    foreach ($notes as $id_matiere => $sequences) {
+                        foreach ($sequences as $id_sequence => $valeur_note) {
+                            if ($valeur_note !== '') {
+                                $this->enregistrerNote($matricule_eleve, $id_matiere, $id_trimestre, $id_sequence, $valeur_note);
+                            }
+                        }
+                    }
+                    foreach ($observations as $id_matiere => $obs) {
+                        if ($obs !== '') {
+                            $this->enregistrerObservation($matricule_eleve, $id_matiere, $id_trimestre, null, $obs);
+                        }
+                    }
+                    $this->pdo->commit();
+                    if ($suivant) {
+                        $next_idx = $current_idx + 1;
+                        header("Location: index.php?action=saisie_note&id_classe=$id_classe&id_trimestre=$id_trimestre&eleve_idx=$next_idx&success=1");
+                    } else {
+                        header("Location: index.php?action=saisie_note&id_classe=$id_classe&id_trimestre=$id_trimestre&eleve_idx=$current_idx&success=1");
+                    }
+                    exit;
+                } catch (Exception $e) {
+                    $this->pdo->rollBack();
+                    $message_erreur = "Erreur : " . $e->getMessage();
+                }
+            }
+        }
+        
+        if (isset($_GET['success']) && $_GET['success'] == 1) {
+            $message_succes = "Notes enregistrées avec succès !";
+        }
+        
+        if ($classe_selectionnee && $id_trimestre_selectionne) {
+            $stmt_el = $this->pdo->prepare("SELECT matricule, nom, prenom FROM eleve WHERE id_classe = :id_classe ORDER BY nom ASC, prenom ASC");
+            $stmt_el->execute(['id_classe' => $classe_selectionnee]);
+            $liste_eleves = $stmt_el->fetchAll();
+            $total_eleves = count($liste_eleves);
+            
+            if ($total_eleves > 0 && $eleve_index >= $total_eleves) {
+                echo "<script>alert('Félicitations ! Tous les élèves ont été évalués.'); window.location.href='index.php?action=dashboard';</script>";
+                exit;
+            }
+            
+            if (!empty($liste_eleves) && $eleve_index < $total_eleves) {
+                $eleve_courant = $liste_eleves[$eleve_index];
+            }
+            
+            if ($eleve_courant) {
+                $stmt_note = $this->pdo->prepare("SELECT id_matiere, id_sequence, valeur, observation FROM note WHERE matricule_eleve = :matricule AND id_trimestre = :trimestre");
+                $stmt_note->execute(['matricule' => $eleve_courant['matricule'], 'trimestre' => $id_trimestre_selectionne]);
+                while ($row = $stmt_note->fetch()) {
+                    $notes_par_matiere[$row['id_matiere']][$row['id_sequence']] = $row['valeur'];
+                    if ($row['observation']) $noteObsExistantes[$row['id_matiere']] = $row['observation'];
+                }
+            }
+            
+            $stmt_mat = $this->pdo->prepare("SELECT m.id, m.nom_matiere, m.coefficient, m.domaine, CONCAT(COALESCE(e.nom, ''), ' ', COALESCE(e.prenom, '')) as professeur FROM matiere m LEFT JOIN affectation_enseignant a ON a.id_classe = m.id_classe AND a.nom_matiere = m.nom_matiere LEFT JOIN enseignant e ON e.id_utilisateur = a.id_utilisateur WHERE m.id_classe = :id_classe ORDER BY m.domaine ASC, m.nom_matiere ASC");
+            $stmt_mat->execute(['id_classe' => $classe_selectionnee]);
+            $matieres_classe = $stmt_mat->fetchAll();
+            
+            foreach ($matieres_classe as $mat) {
+                $dom = $mat['domaine'];
+                $matieres_par_domaine[$dom][] = $mat;
+                if ($mat['professeur']) $prof_matiere[$mat['id']] = $mat['professeur'];
+            }
+        }
+        
+        $stats_classe = $this->calculerStatsClasseMensuel($classe_selectionnee, $id_trimestre_selectionne);
+        $rang_eleve = $this->calculerRangEleveMensuel($eleve_courant['matricule'] ?? null, $classe_selectionnee, $id_trimestre_selectionne);
+        $moyennes_mensuelles = $this->calculerMoyennesMensuelles($classe_selectionnee, $id_trimestre_selectionne, $mensuels);
+        $trimestre_nom = $this->getTrimestreNom($id_trimestre_selectionne);
+        
+        require_once 'vues/notes/saisie.php';
+    }
+
+    // ==================== MÉTHODES AUXILIAIRES ====================
+    
+    private function getMensuelsByTrimestre($id_trimestre) {
+        if (!$id_trimestre) return [];
+        $stmt = $this->pdo->prepare("SELECT id, numero_sequence, nom FROM sequence WHERE id_trimestre = :id_trimestre ORDER BY numero_sequence ASC");
+        $stmt->execute(['id_trimestre' => $id_trimestre]);
+        return $stmt->fetchAll();
+    }
+
+    private function enregistrerNote($matricule, $id_matiere, $id_trimestre, $id_sequence, $valeur) {
+        $check = $this->pdo->prepare("SELECT id FROM note WHERE matricule_eleve = :mat AND id_matiere = :mat_id AND id_trimestre = :trim AND id_sequence = :seq");
+        $check->execute(['mat' => $matricule, 'mat_id' => $id_matiere, 'trim' => $id_trimestre, 'seq' => $id_sequence]);
+        if ($check->fetch()) {
+            $update = $this->pdo->prepare("UPDATE note SET valeur = :val WHERE matricule_eleve = :mat AND id_matiere = :mat_id AND id_trimestre = :trim AND id_sequence = :seq");
+            $update->execute(['val' => $valeur, 'mat' => $matricule, 'mat_id' => $id_matiere, 'trim' => $id_trimestre, 'seq' => $id_sequence]);
+        } else {
+            $insert = $this->pdo->prepare("INSERT INTO note (matricule_eleve, id_matiere, id_trimestre, id_sequence, valeur) VALUES (:mat, :mat_id, :trim, :seq, :val)");
+            $insert->execute(['mat' => $matricule, 'mat_id' => $id_matiere, 'trim' => $id_trimestre, 'seq' => $id_sequence, 'val' => $valeur]);
+        }
+    }
+
+    private function enregistrerObservation($matricule, $id_matiere, $id_trimestre, $id_sequence, $obs) {
+        if ($id_sequence) {
+            $update = $this->pdo->prepare("UPDATE note SET observation = :obs WHERE matricule_eleve = :mat AND id_matiere = :mat_id AND id_trimestre = :trim AND id_sequence = :seq");
+            $update->execute(['obs' => $obs, 'mat' => $matricule, 'mat_id' => $id_matiere, 'trim' => $id_trimestre, 'seq' => $id_sequence]);
+        } else {
+            $update = $this->pdo->prepare("UPDATE note SET observation = :obs WHERE matricule_eleve = :mat AND id_matiere = :mat_id AND id_trimestre = :trim");
+            $update->execute(['obs' => $obs, 'mat' => $matricule, 'mat_id' => $id_matiere, 'trim' => $id_trimestre]);
+        }
+    }
+
+    private function calculerStatsClasseMensuel($id_classe, $id_trimestre) {
+        if (!$id_classe || !$id_trimestre) return ['max_moyenne' => 0, 'min_moyenne' => 0, 'moyenne_classe' => 0];
+        $stmt = $this->pdo->prepare("SELECT AVG(n.valeur) as moyenne FROM note n JOIN eleve e ON e.matricule = n.matricule_eleve WHERE e.id_classe = :id_classe AND n.id_trimestre = :trimestre AND n.valeur IS NOT NULL");
+        $stmt->execute(['id_classe' => $id_classe, 'trimestre' => $id_trimestre]);
+        $moyenne_classe = $stmt->fetchColumn() ?: 0;
+        return ['max_moyenne' => 0, 'min_moyenne' => 0, 'moyenne_classe' => $moyenne_classe];
+    }
+
+    private function calculerRangEleveMensuel($matricule, $id_classe, $id_trimestre) {
+        if (!$matricule) return 'N/A';
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM eleve WHERE id_classe = :id_classe");
+        $stmt->execute(['id_classe' => $id_classe]);
+        $total_eleves = $stmt->fetchColumn();
+        $stmt = $this->pdo->prepare("SELECT AVG(n.valeur) as moyenne FROM note n WHERE n.matricule_eleve = :matricule AND n.id_trimestre = :trimestre AND n.valeur IS NOT NULL");
+        $stmt->execute(['matricule' => $matricule, 'trimestre' => $id_trimestre]);
+        $moyenne_eleve = $stmt->fetchColumn();
+        if (!$moyenne_eleve) return 'N/A';
+        $stmt = $this->pdo->prepare("SELECT COUNT(DISTINCT e.matricule) as nb FROM eleve e JOIN note n ON n.matricule_eleve = e.matricule WHERE e.id_classe = :id_classe AND n.id_trimestre = :trimestre AND n.valeur IS NOT NULL GROUP BY e.matricule HAVING AVG(n.valeur) > :moyenne");
+        $stmt->execute(['id_classe' => $id_classe, 'trimestre' => $id_trimestre, 'moyenne' => $moyenne_eleve]);
+        $rang = $stmt->rowCount() + 1;
+        return $rang . 'e/' . $total_eleves;
+    }
+
+    private function calculerMoyennesMensuelles($id_classe, $id_trimestre, $mensuels) {
+        $moyennes = [];
+        if (empty($mensuels)) return $moyennes;
+        foreach ($mensuels as $mensuel) {
+            $stmt = $this->pdo->prepare("SELECT AVG(n.valeur) as moyenne FROM note n JOIN eleve e ON e.matricule = n.matricule_eleve WHERE e.id_classe = :id_classe AND n.id_trimestre = :trimestre AND n.id_sequence = :sequence AND n.valeur IS NOT NULL");
+            $stmt->execute(['id_classe' => $id_classe, 'trimestre' => $id_trimestre, 'sequence' => $mensuel['id']]);
+            $moyennes[] = ['nom' => $mensuel['nom'], 'moyenne' => $stmt->fetchColumn() ?: 0];
+        }
+        return $moyennes;
+    }
+
+    private function getTrimestreNom($id) {
+        if (!$id) return 'PREMIER TRIMESTRE';
+        $stmt = $this->pdo->prepare("SELECT nom FROM trimestre WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+        $nom = $stmt->fetchColumn();
+        return $nom ? strtoupper($nom) : 'PREMIER TRIMESTRE';
+    }
+
+    // ==================== AUTRES MÉTHODES EXISTANTES ====================
+    
+    public function enregistrerNotes() {
+        // Gardez votre méthode existante
+    }
+
+    public function listeBulletins() {
+        // Gardez votre méthode existante
+    }
+
+    public function modifierMatieres() {
+        // Gardez votre méthode existante
+    }
+
+    public function genererBulletinsClasse() {
+        // Gardez votre méthode existante
+    }
+
+    public function visualiserBulletin() {
+        // Gardez votre méthode existante
+    }
+
+    public function creerMatiereAjax() {
+        // Gardez votre méthode existante
+    }
+}
+?>

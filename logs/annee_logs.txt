@@ -1,0 +1,392 @@
+
+---
+2026-06-17 00:02:53
+POST: Array
+(
+    [action_type] => create
+    [libelle] => 2026-2027
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 00:05:18
+POST: Array
+(
+    [id_annee] => 2
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 00:05:34
+POST: Array
+(
+    [id_annee] => 1
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 00:06:12
+POST: Array
+(
+    [action_type] => create
+    [libelle] => 2027-2028
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 00:06:22
+POST: Array
+(
+    [id_annee] => 1
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 00:24:56
+POST: Array
+(
+    [action_type] => update
+    [id_annee] => 3
+    [libelle] => 2027-2028 Test
+    [statut] => inactive
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 00:25:22
+POST: Array
+(
+    [action_type] => delete
+    [id_annee] => 4
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 00:28:31
+POST: Array
+(
+    [id_annee] => 3
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 19:28:09
+POST: Array
+(
+    [id_annee] => 2
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 19:28:29
+POST: Array
+(
+    [id_annee] => 1
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 19:32:35
+POST: Array
+(
+    [action_type] => create
+    [libelle] => 2029-2030-TEST
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 19:39:30
+POST: Array
+(
+    [action_type] => delete
+    [id_annee] => 3
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 19:39:47
+POST: Array
+(
+    [action_type] => delete
+    [id_annee] => 5
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 19:42:42
+POST: Array
+(
+    [action_type] => create
+    [libelle] => 2026_2027
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 20:06:41
+POST: Array
+(
+    [id_annee] => 6
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 20:09:42
+POST: Array
+(
+    [action_type] => create
+    [libelle] => 2027_2028
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 20:10:17
+POST: Array
+(
+    [id_annee] => 6
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 20:10:45
+POST: Array
+(
+    [id_annee] => 1
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 20:10:58
+POST: Array
+(
+    [id_annee] => 6
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 20:31:36
+POST: Array
+(
+    [id_annee] => 6
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-17 20:56:25
+POST: Array
+(
+    [id_annee] => 6
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 07:14:49
+POST: Array
+(
+    [action_type] => create
+    [libelle] => 2026_2027
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 07:14:58
+POST: Array
+(
+    [action_type] => select
+    [id_annee] => 6
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 07:27:33
+POST: Array
+(
+    [id_annee] => 6
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 07:28:09
+POST: Array
+(
+    [id_annee] => 1
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 07:31:39
+POST: Array
+(
+    [action_type] => select
+    [id_annee] => 6
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 07:32:07
+POST: Array
+(
+    [action_type] => select
+    [id_annee] => 4
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 07:32:56
+POST: Array
+(
+    [action_type] => select
+    [id_annee] => 1
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 08:54:46
+POST: Array
+(
+    [id_annee] => 6
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)
+
+---
+2026-06-19 09:09:32
+POST: Array
+(
+    [id_annee] => 6
+    [action_type] => select
+)
+SESSION: Array
+(
+    [session_role] => admin
+    [session_user] => admin
+)

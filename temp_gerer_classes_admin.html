@@ -1,0 +1,331 @@
+﻿
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="font-weight-bold text-dark"><i class="fas fa-school mr-2 text-primary"></i>Configuration des Classes</h3>
+            <p class="text-muted mb-0">Ajoutez de nouvelles salles, modifiez les intitulés ou supprimez des classes existantes.</p>
+        </div>
+                    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalAjouterClasse">
+                <i class="fas fa-plus mr-2"></i>Nouvelle Classe
+            </button>
+            </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle">
+                    <thead class="bg-primary text-white">
+                        <tr>
+                            <th style="width: 15%">ID Classe</th>
+                            <th>Nom de la Classe</th>
+                                                            <th style="width: 25%" class="text-center">Actions</th>
+                                                    </tr>
+                    </thead>
+                    <tbody>
+                                                                                    <tr>
+                                    <td class="font-weight-bold text-secondary"># 3</td>
+                                    <td class="font-weight-bold" style="font-size: 1.1rem;">CE1</td>
+                                    
+                                                                            <td class="text-center">
+                                            <button class="btn btn-sm btn-warning text-white btn-renommer" 
+                                                    data-id="3" 
+                                                    data-nom="CE1">
+                                                <i class="fas fa-edit mr-1"></i> Renommer
+                                            </button>
+                                            <button class="btn btn-sm btn-danger btn-supprimer" 
+                                                    data-id="3" 
+                                                    data-nom="CE1">
+                                                <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                                            </button>
+                                        </td>
+                                                                    </tr>
+                                                            <tr>
+                                    <td class="font-weight-bold text-secondary"># 4</td>
+                                    <td class="font-weight-bold" style="font-size: 1.1rem;">CE2</td>
+                                    
+                                                                            <td class="text-center">
+                                            <button class="btn btn-sm btn-warning text-white btn-renommer" 
+                                                    data-id="4" 
+                                                    data-nom="CE2">
+                                                <i class="fas fa-edit mr-1"></i> Renommer
+                                            </button>
+                                            <button class="btn btn-sm btn-danger btn-supprimer" 
+                                                    data-id="4" 
+                                                    data-nom="CE2">
+                                                <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                                            </button>
+                                        </td>
+                                                                    </tr>
+                                                            <tr>
+                                    <td class="font-weight-bold text-secondary"># 5</td>
+                                    <td class="font-weight-bold" style="font-size: 1.1rem;">CM1</td>
+                                    
+                                                                            <td class="text-center">
+                                            <button class="btn btn-sm btn-warning text-white btn-renommer" 
+                                                    data-id="5" 
+                                                    data-nom="CM1">
+                                                <i class="fas fa-edit mr-1"></i> Renommer
+                                            </button>
+                                            <button class="btn btn-sm btn-danger btn-supprimer" 
+                                                    data-id="5" 
+                                                    data-nom="CM1">
+                                                <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                                            </button>
+                                        </td>
+                                                                    </tr>
+                                                            <tr>
+                                    <td class="font-weight-bold text-secondary"># 6</td>
+                                    <td class="font-weight-bold" style="font-size: 1.1rem;">CM2</td>
+                                    
+                                                                            <td class="text-center">
+                                            <button class="btn btn-sm btn-warning text-white btn-renommer" 
+                                                    data-id="6" 
+                                                    data-nom="CM2">
+                                                <i class="fas fa-edit mr-1"></i> Renommer
+                                            </button>
+                                            <button class="btn btn-sm btn-danger btn-supprimer" 
+                                                    data-id="6" 
+                                                    data-nom="CM2">
+                                                <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                                            </button>
+                                        </td>
+                                                                    </tr>
+                                                            <tr>
+                                    <td class="font-weight-bold text-secondary"># 2</td>
+                                    <td class="font-weight-bold" style="font-size: 1.1rem;">CP</td>
+                                    
+                                                                            <td class="text-center">
+                                            <button class="btn btn-sm btn-warning text-white btn-renommer" 
+                                                    data-id="2" 
+                                                    data-nom="CP">
+                                                <i class="fas fa-edit mr-1"></i> Renommer
+                                            </button>
+                                            <button class="btn btn-sm btn-danger btn-supprimer" 
+                                                    data-id="2" 
+                                                    data-nom="CP">
+                                                <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                                            </button>
+                                        </td>
+                                                                    </tr>
+                                                            <tr>
+                                    <td class="font-weight-bold text-secondary"># 7</td>
+                                    <td class="font-weight-bold" style="font-size: 1.1rem;">CP (B)</td>
+                                    
+                                                                            <td class="text-center">
+                                            <button class="btn btn-sm btn-warning text-white btn-renommer" 
+                                                    data-id="7" 
+                                                    data-nom="CP (B)">
+                                                <i class="fas fa-edit mr-1"></i> Renommer
+                                            </button>
+                                            <button class="btn btn-sm btn-danger btn-supprimer" 
+                                                    data-id="7" 
+                                                    data-nom="CP (B)">
+                                                <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                                            </button>
+                                        </td>
+                                                                    </tr>
+                                                            <tr>
+                                    <td class="font-weight-bold text-secondary"># 1</td>
+                                    <td class="font-weight-bold" style="font-size: 1.1rem;">SIL</td>
+                                    
+                                                                            <td class="text-center">
+                                            <button class="btn btn-sm btn-warning text-white btn-renommer" 
+                                                    data-id="1" 
+                                                    data-nom="SIL">
+                                                <i class="fas fa-edit mr-1"></i> Renommer
+                                            </button>
+                                            <button class="btn btn-sm btn-danger btn-supprimer" 
+                                                    data-id="1" 
+                                                    data-nom="SIL">
+                                                <i class="fas fa-trash-alt mr-1"></i> Supprimer
+                                            </button>
+                                        </td>
+                                                                    </tr>
+                                                                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="modalAjouterClasse" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-plus-circle mr-2"></i>Ajouter une classe</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form-ajouter-classe">
+                <div class="modal-body p-4">
+                    <div class="form-group">
+                        <label class="font-weight-bold text-secondary">Intitulé de la classe :</label>
+                        <input type="text" name="nom_classe" class="form-control form-control-lg border-primary" placeholder="Ex: SIL A, CM2 B..." required>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary px-4">Créer la classe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalModifierClasse" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-edit mr-2"></i>Renommer la classe</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form-modifier-classe">
+                <input type="hidden" name="id_classe" id="mod-id-classe">
+                <div class="modal-body p-4">
+                    <div class="form-group">
+                        <label class="font-weight-bold text-secondary">Nouveau nom de la classe :</label>
+                        <input type="text" name="nom_classe" id="mod-nom-classe" class="form-control form-control-lg border-warning" required>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-warning text-white px-4">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+(function() {
+    // Fonction utilitaire pour afficher proprement un message d'erreur dans un formulaire
+    function afficherErreurFormulaire(idFormulaire, message) {
+        const form = document.getElementById(idFormulaire);
+        if (!form) return;
+        
+        // Supprime l'ancienne alerte si elle existe
+        const ancienneAlerte = form.querySelector('.ajax-debug-alert');
+        if (ancienneAlerte) ancienneAlerte.remove();
+
+        const alerte = document.createElement('div');
+        alerte.className = 'alert alert-warning mt-3 font-weight-bold text-dark ajax-debug-alert';
+        alerte.style.borderLeft = '5px solid #fd7e14';
+        alerte.style.backgroundColor = '#fff3cd';
+        alerte.innerHTML = `<i class="fas fa-exclamation-triangle mr-2 text-warning"></i> ${message}`;
+        
+        form.prepend(alerte);
+    }
+
+    // Ouverture de la modale Modifier
+    document.querySelectorAll('.btn-renommer').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ancienneAlerte = document.querySelector('#form-modifier-classe .ajax-debug-alert');
+            if (ancienneAlerte) ancienneAlerte.remove();
+            
+            document.getElementById('mod-id-classe').value = this.getAttribute('data-id');
+            document.getElementById('mod-nom-classe').value = this.getAttribute('data-nom');
+            $('#modalModifierClasse').modal('show');
+        });
+    });
+
+    // AJAX : Ajouter une classe
+    document.getElementById('form-ajouter-classe').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        fetch('index.php?action=sauvegarder_classe', {
+            method: 'POST',
+            body: new FormData(this),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json()
+                    .then(errData => { throw new Error(errData.message); })
+                    .catch(() => { throw new Error("Le serveur a bloqué la requête (Erreur Sécurité ou Droits)."); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.succes) {
+                $('#modalAjouterClasse').modal('hide');
+                alert(data.message);
+                location.reload();
+            } else {
+                throw new Error(data.message);
+            }
+        })
+        .catch(err => {
+            afficherErreurFormulaire('form-ajouter-classe', err.message);
+            console.error(err);
+        });
+    });
+
+    // AJAX : Renommer une classe
+    document.getElementById('form-modifier-classe').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        fetch('index.php?action=modifier_classe', {
+            method: 'POST',
+            body: new FormData(this),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json()
+                    .then(errData => { throw new Error(errData.message); })
+                    .catch(() => { throw new Error("Impossible de modifier la classe (Session expirée ou accès refusé)."); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.succes) {
+                $('#modalModifierClasse').modal('hide');
+                alert(data.message);
+                location.reload();
+            } else {
+                throw new Error(data.message);
+            }
+        })
+        .catch(err => {
+            afficherErreurFormulaire('form-modifier-classe', err.message);
+            console.error(err);
+        });
+    });
+
+    // AJAX : Supprimer une classe
+    document.querySelectorAll('.btn-supprimer').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const nom = this.getAttribute('data-nom');
+            
+            if (confirm(`Voulez-vous vraiment supprimer définitivement la classe "${nom}" ?`)) {
+                let formData = new FormData();
+                formData.append('id_classe', id);
+
+                fetch('index.php?action=supprimer_classe', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                         throw new Error("Action impossible. Le serveur a retourné une erreur.");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message);
+                    if (data.succes) { location.reload(); }
+                })
+                .catch(err => {
+                    alert("Erreur lors de la suppression : " + err.message);
+                });
+            }
+        });
+    });
+};
+</script>
+
+</div>
+
